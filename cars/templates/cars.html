@@ -7,10 +7,23 @@
 
   <div class="max-w-6xl mx-auto px-6 py-14">
 
-    <h1 class="text-3xl font-semibold text-center mb-10">
-      Explore Cars
-    </h1>
+    <!-- Header -->
+    <div class="flex items-center justify-between mb-10">
+      <h1 class="text-3xl font-semibold">
+        Explore Cars
+      </h1>
 
+      <a
+        href="{% url 'new_car' %}"
+        class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl 
+               bg-black text-white font-medium
+               hover:opacity-90 transition"
+      >
+        + Add New Car
+      </a>
+    </div>
+
+    <!-- Search -->
     <form method="GET" action="{% url 'cars_list' %}" class="flex justify-center mb-14">
       <input 
         type="text" 
@@ -20,6 +33,7 @@
       >
     </form>
 
+    <!-- Cars grid -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
 
       {% for car in cars %}
