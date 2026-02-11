@@ -3,61 +3,140 @@
 
 {% block content %}
 
-<div class="min-h-screen transition">
+<!-- ── Hero Section ── -->
+<section class="relative overflow-hidden">
+  <div class="max-w-7xl mx-auto px-6 pt-20 pb-16 text-center">
 
-  <div class="max-w-6xl mx-auto px-6 py-14">
+    <!-- Headline -->
+    <h1 class="text-5xl sm:text-6xl lg:text-7xl font-semibold tracking-tight leading-[1.08] animate-fade-in-up">
+      Find your next
+      <span class="bg-gradient-to-r from-blue-600 via-purple-500 to-pink-500 bg-clip-text text-transparent">
+        dream car.
+      </span>
+    </h1>
 
-    <!-- Header -->
-    <div class="flex items-center justify-between mb-10">
-      <h1 class="text-3xl font-semibold">
-        Explore Cars
-      </h1>
-      <a href="{% url 'new_car' %}" class="px-6 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition">
+    <p class="mt-6 text-lg sm:text-xl text-gray-500 dark:text-gray-400 max-w-2xl mx-auto animate-fade-in-up delay-200">
+      Explore our curated collection of premium vehicles. Every detail, every drive matters.
+    </p>
+
+    <!-- Search Bar -->
+    <form method="GET" action="{% url 'cars_list' %}" class="mt-10 animate-fade-in-up delay-300">
+      <div class="relative max-w-xl mx-auto group">
+        <div class="absolute inset-0 bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-pink-500/20 rounded-2xl blur-xl opacity-0 group-focus-within:opacity-100 transition-opacity duration-500"></div>
+        <div class="relative flex items-center">
+          <!-- Search Icon -->
+          <svg class="absolute left-5 w-5 h-5 text-gray-400 dark:text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+          </svg>
+          <input
+            type="text"
+            name="search"
+            value="{{ request.GET.search|default:'' }}"
+            placeholder="Search by model, brand..."
+            class="w-full pl-14 pr-6 py-4 rounded-2xl bg-gray-100/80 dark:bg-gray-800/80 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-transparent transition-all duration-300 text-base"
+          >
+        </div>
+      </div>
+    </form>
+
+    <!-- Add New Car Button -->
+    <div class="mt-8 animate-fade-in-up delay-400">
+      <a href="{% url 'new_car' %}"
+         class="inline-flex items-center gap-2 px-8 py-3.5 bg-gray-900 dark:bg-white text-white dark:text-gray-900 font-medium rounded-full hover:scale-105 active:scale-95 transition-all duration-300 shadow-lg shadow-gray-900/20 dark:shadow-white/10">
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+        </svg>
         Add New Car
       </a>
     </div>
 
-    <!-- Search -->
-    <form method="GET" action="{% url 'cars_list' %}" class="flex justify-center mb-14">
-      <input 
-        type="text"
-        name="search"
-        placeholder="Search cars..." 
-        class="w-full max-w-lg px-5 py-3 border rounded-full bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-700 placeholder-gray-400 dark:placeholder-gray-500"
-      >
-    </form>
+  </div>
+</section>
 
-    <!-- Cars grid -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+<!-- ── Cars Grid ── -->
+<section class="max-w-7xl mx-auto px-6 pb-24">
 
+  {% if cars %}
+    <!-- Results count -->
+    <p class="text-sm text-gray-400 dark:text-gray-500 mb-8 reveal">
+      {{ cars|length }} vehicle{{ cars|length|pluralize }} available
+    </p>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
       {% for car in cars %}
-        <a href="{% url 'car_details' car.id %}" class="group block">
+        <a href="{% url 'car_details' car.id %}" class="group reveal" style="transition-delay: {{ forloop.counter0|divisibleby:3|yesno:'0,0.1,0.2' }}s;">
 
-          <div class="rounded-2xl overflow-hidden bg-gray-100 dark:bg-gray-800">
-            <img src="{{ car.image.url }}" class="w-full h-64 object-cover">
+          <!-- Card -->
+          <div class="relative rounded-3xl overflow-hidden bg-gray-100 dark:bg-gray-800/80 transition-all duration-500 group-hover:shadow-2xl group-hover:shadow-gray-300/50 dark:group-hover:shadow-black/30 group-hover:-translate-y-2">
+
+            <!-- Image -->
+            <div class="relative overflow-hidden aspect-[4/3]">
+              {% if car.image %}
+                <img
+                  src="{{ car.image.url }}"
+                  alt="{{ car.brand }} {{ car.model }}"
+                  loading="lazy"
+                  class="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-110"
+                >
+              {% else %}
+                <div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-800">
+                  <svg class="w-16 h-16 text-gray-400 dark:text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.41a2.25 2.25 0 013.182 0l2.909 2.91m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
+                  </svg>
+                </div>
+              {% endif %}
+
+              <!-- Gradient overlay on hover -->
+              <div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+            </div>
+
+            <!-- Card content -->
+            <div class="p-5">
+              <div class="flex items-start justify-between gap-3">
+                <div>
+                  <p class="text-xs font-medium text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-1">{{ car.brand }}</p>
+                  <h2 class="text-lg font-semibold tracking-tight text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors duration-300">
+                    {{ car.model }}
+                  </h2>
+                </div>
+                {% if car.factory_year %}
+                  <span class="text-xs font-medium px-2.5 py-1 rounded-full bg-gray-200/80 dark:bg-gray-700/80 text-gray-600 dark:text-gray-300 whitespace-nowrap">
+                    {{ car.factory_year }}
+                  </span>
+                {% endif %}
+              </div>
+
+              {% if car.value %}
+                <p class="mt-3 text-xl font-semibold tracking-tight">
+                  R$ {{ car.value|floatformat:0|intcomma }}
+                </p>
+              {% endif %}
+            </div>
+
           </div>
-
-          <div class="mt-4">
-            <h2 class="text-lg font-medium">
-              {{ car.brand }} {{ car.model }}
-            </h2>
-
-            <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
-              {{ car.factory_year }}
-            </p>
-
-            <p class="text-lg font-semibold mt-2">
-              R$ {{ car.value|floatformat:0|intcomma }}
-            </p>
-          </div>
-
         </a>
       {% endfor %}
-
     </div>
 
-  </div>
+  {% else %}
+    <!-- Empty State -->
+    <div class="text-center py-24 reveal">
+      <div class="w-20 h-20 mx-auto mb-6 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+        <svg class="w-10 h-10 text-gray-300 dark:text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 18.75a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 01-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 00-3.213-9.193 2.056 2.056 0 00-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 00-10.026 0 1.106 1.106 0 00-.987 1.106v7.635m12-6.677v6.677m0 4.5v-4.5m0 0h-12" />
+        </svg>
+      </div>
+      <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">No cars found</h3>
+      <p class="text-gray-500 dark:text-gray-400 mb-8">Try a different search or add a new car to the inventory.</p>
+      <a href="{% url 'new_car' %}" class="inline-flex items-center gap-2 px-6 py-3 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-full font-medium hover:scale-105 transition-all duration-300">
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+        </svg>
+        Add your first car
+      </a>
+    </div>
+  {% endif %}
 
-</div>
+</section>
 
 {% endblock %}

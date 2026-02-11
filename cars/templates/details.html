@@ -1,90 +1,125 @@
 {% extends "base.html" %}
 {% load humanize %}
 
-{% block title %}{{ car.brand }} {{ car.model }}{% endblock %}
+{% block title %}{{ car.brand }} {{ car.model }} — OffCars{% endblock %}
 
 {% block content %}
 
-<div class="max-w-7xl mx-auto px-6 py-14">
+<div class="max-w-7xl mx-auto px-6 py-10">
 
-  <!-- Back -->
-  <a href="{% url 'cars_list' %}" 
-     class="text-sm text-gray-500 dark:text-gray-400 hover:text-black dark:hover:text-white transition">
-    ← Back to Inventory
+  <!-- Back Link -->
+  <a href="{% url 'cars_list' %}"
+     class="inline-flex items-center gap-2 text-sm text-gray-400 dark:text-gray-500 hover:text-gray-900 dark:hover:text-white transition-colors duration-300 animate-fade-in">
+    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+    </svg>
+    Back to Inventory
   </a>
 
-  <div class="mt-10 grid lg:grid-cols-2 gap-14">
+  <!-- ── Main Layout ── -->
+  <div class="mt-8 grid lg:grid-cols-5 gap-12 lg:gap-16">
 
-    <!-- IMAGE -->
-    <div class="rounded-3xl overflow-hidden bg-gray-100 dark:bg-gray-800 shadow-lg">
-      <img 
-        src="{{ car.image.url }}" 
-        alt="{{ car.model }}"
-        class="w-full h-[520px] object-cover hover:scale-[1.03] transition duration-700"
-      >
+    <!-- IMAGE — 3 cols -->
+    <div class="lg:col-span-3 animate-fade-in-up">
+      <div class="relative rounded-3xl overflow-hidden bg-gray-100 dark:bg-gray-800/80 shadow-2xl shadow-gray-300/30 dark:shadow-black/30">
+        {% if car.image %}
+          <img
+            src="{{ car.image.url }}"
+            alt="{{ car.brand }} {{ car.model }}"
+            class="w-full h-[360px] sm:h-[460px] lg:h-[540px] object-cover hover:scale-[1.03] transition-transform duration-[1.2s] ease-out"
+          >
+        {% else %}
+          <div class="w-full h-[360px] sm:h-[460px] lg:h-[540px] flex items-center justify-center bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-800">
+            <svg class="w-24 h-24 text-gray-400 dark:text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="0.8">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.41a2.25 2.25 0 013.182 0l2.909 2.91m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
+            </svg>
+          </div>
+        {% endif %}
+      </div>
     </div>
 
-    <!-- DETAILS -->
-    <div class="flex flex-col justify-between">
+    <!-- DETAILS — 2 cols -->
+    <div class="lg:col-span-2 flex flex-col animate-fade-in-up delay-200">
+
+      <!-- Brand label -->
+      <p class="text-xs font-medium uppercase tracking-[0.2em] text-gray-400 dark:text-gray-500 mb-3">
+        {{ car.brand }}
+      </p>
 
       <!-- Title -->
-      <div>
-        <p class="uppercase text-xs tracking-widest text-gray-500 dark:text-gray-400 mb-2">
-          Premium Selection
-        </p>
+      <h1 class="text-4xl sm:text-5xl font-semibold tracking-tight leading-[1.1]">
+        {{ car.model }}
+      </h1>
 
-        <h1 class="text-4xl font-semibold tracking-tight">
-          {{ car.brand }} {{ car.model }}
-        </h1>
-
-        <p class="text-gray-500 dark:text-gray-400 mt-3 text-lg">
-          Factory Year • {{ car.factory_year }}
+      <!-- Year subtitle -->
+      {% if car.factory_year %}
+        <p class="mt-4 text-lg text-gray-500 dark:text-gray-400">
+          {{ car.factory_year }}{% if car.model_year and car.model_year != car.factory_year %} / {{ car.model_year }}{% endif %}
         </p>
-      </div>
+      {% endif %}
 
       <!-- Price -->
-      <div class="mt-8">
-        <p class="text-sm text-gray-500 dark:text-gray-400 mb-1">
-          Price
-        </p>
-        <p class="text-3xl font-bold tracking-tight">
-          R$ {{ car.value|floatformat:0|intcomma }}
-        </p>
-      </div>
+      {% if car.value %}
+        <div class="mt-8">
+          <p class="text-xs uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-1">Starting at</p>
+          <p class="text-4xl font-bold tracking-tight">
+            R$ {{ car.value|floatformat:0|intcomma }}
+          </p>
+        </div>
+      {% endif %}
 
-      <!-- Specs -->
-      <div class="mt-10 grid grid-cols-2 gap-6 text-sm">
+      <!-- Divider -->
+      <div class="my-8 h-px bg-gray-200 dark:bg-gray-800"></div>
 
-        <div class="border-b border-gray-200 dark:border-gray-700 pb-3">
-          <p class="text-gray-500 dark:text-gray-400 text-xs uppercase tracking-wide">Brand</p>
-          <p class="font-medium">{{ car.brand }}</p>
+      <!-- Specs Grid -->
+      <div class="grid grid-cols-2 gap-x-8 gap-y-6 reveal">
+
+        <div>
+          <p class="text-xs uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-1">Brand</p>
+          <p class="font-medium text-gray-900 dark:text-white">{{ car.brand }}</p>
         </div>
 
-        <div class="border-b border-gray-200 dark:border-gray-700 pb-3">
-          <p class="text-gray-500 dark:text-gray-400 text-xs uppercase tracking-wide">Model</p>
-          <p class="font-medium">{{ car.model }}</p>
+        <div>
+          <p class="text-xs uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-1">Model</p>
+          <p class="font-medium text-gray-900 dark:text-white">{{ car.model }}</p>
         </div>
 
-        <div class="border-b border-gray-200 dark:border-gray-700 pb-3">
-          <p class="text-gray-500 dark:text-gray-400 text-xs uppercase tracking-wide">Year</p>
-          <p class="font-medium">{{ car.factory_year }}</p>
+        {% if car.factory_year %}
+        <div>
+          <p class="text-xs uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-1">Factory Year</p>
+          <p class="font-medium text-gray-900 dark:text-white">{{ car.factory_year }}</p>
         </div>
+        {% endif %}
 
-        <div class="border-b border-gray-200 dark:border-gray-700 pb-3">
-          <p class="text-gray-500 dark:text-gray-400 text-xs uppercase tracking-wide">Status</p>
-          <p class="font-medium text-green-600 dark:text-green-400">Available</p>
+        {% if car.model_year %}
+        <div>
+          <p class="text-xs uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-1">Model Year</p>
+          <p class="font-medium text-gray-900 dark:text-white">{{ car.model_year }}</p>
+        </div>
+        {% endif %}
+
+        {% if car.plate %}
+        <div>
+          <p class="text-xs uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-1">Plate</p>
+          <p class="font-medium text-gray-900 dark:text-white uppercase">{{ car.plate }}</p>
+        </div>
+        {% endif %}
+
+        <div>
+          <p class="text-xs uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-1">Status</p>
+          <p class="font-medium text-emerald-600 dark:text-emerald-400">Available</p>
         </div>
 
       </div>
 
       <!-- CTA Buttons -->
-      <div class="mt-12 flex gap-4">
+      <div class="mt-10 flex flex-col sm:flex-row gap-3 reveal">
 
-        <button class="px-6 py-3 rounded-full bg-black dark:bg-white dark:text-black text-white font-medium hover:opacity-90 transition">
+        <button class="flex-1 px-8 py-4 rounded-full bg-gray-900 dark:bg-white text-white dark:text-gray-900 font-medium text-center hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 shadow-lg shadow-gray-900/20 dark:shadow-white/10">
           Request Purchase
         </button>
 
-        <button class="px-6 py-3 rounded-full border border-gray-300 dark:border-gray-700 hover:border-black dark:hover:border-white transition">
+        <button class="flex-1 px-8 py-4 rounded-full border-2 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white font-medium text-center hover:border-gray-900 dark:hover:border-white hover:scale-[1.02] active:scale-[0.98] transition-all duration-300">
           Book Test Drive
         </button>
 

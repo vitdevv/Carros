@@ -4,97 +4,228 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <title>{% block title %} OffCars {% endblock %}</title>
+  <title>{% block title %}OffCars{% endblock %}</title>
 
-  <!-- Tailwind -->
+  <!-- Tailwind CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
 
   <script>
     tailwind.config = {
-      darkMode: 'class'
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['-apple-system', 'BlinkMacSystemFont', 'SF Pro Display', 'SF Pro Text', 'system-ui', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'sans-serif'],
+          },
+        },
+      },
     }
 
-    // Load saved theme
-    if (localStorage.theme === 'dark') {
+    // Load saved theme (default to light)
+    if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
       document.documentElement.classList.add('dark')
     }
-
-    function toggleDarkMode() {
-      document.documentElement.classList.toggle('dark')
-      localStorage.theme = document.documentElement.classList.contains('dark') ? 'dark' : 'light'
-    }
   </script>
+
+  <style>
+    /* ── Global Animations ── */
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateY(-10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes scaleIn {
+      from { opacity: 0; transform: scale(0.95); }
+      to   { opacity: 1; transform: scale(1); }
+    }
+
+    .animate-fade-in-up  { animation: fadeInUp 0.8s ease-out both; }
+    .animate-fade-in     { animation: fadeIn 0.6s ease-out both; }
+    .animate-slide-down  { animation: slideDown 0.5s ease-out both; }
+    .animate-scale-in    { animation: scaleIn 0.6s ease-out both; }
+
+    /* Stagger delays */
+    .delay-100 { animation-delay: 0.1s; }
+    .delay-200 { animation-delay: 0.2s; }
+    .delay-300 { animation-delay: 0.3s; }
+    .delay-400 { animation-delay: 0.4s; }
+    .delay-500 { animation-delay: 0.5s; }
+
+    /* Scroll reveal */
+    .reveal {
+      opacity: 0;
+      transform: translateY(40px);
+      transition: opacity 0.8s ease, transform 0.8s ease;
+    }
+    .reveal.revealed {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Smooth scrollbar */
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 999px; }
+    .dark ::-webkit-scrollbar-thumb { background: #374151; }
+
+    /* Mobile menu */
+    .mobile-menu {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .mobile-menu.open {
+      max-height: 300px;
+    }
+  </style>
 </head>
 
-<body class="bg-white dark:bg-black text-gray-900 dark:text-gray-100 transition min-h-screen flex flex-col">
+<body class="bg-white dark:bg-[#0a0a0a] text-gray-900 dark:text-gray-100 font-sans antialiased min-h-screen flex flex-col transition-colors duration-500">
 
-  <!-- HEADER -->
-  <header class="w-full border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-black sticky top-0 z-40">
-    <div class="max-w-7xl mx-auto px-6 py-5 flex justify-between items-center">
+  <!-- ── NAVBAR ── -->
+  <header class="fixed top-0 left-0 right-0 z-50 bg-white/80 dark:bg-[#0a0a0a]/80 backdrop-blur-xl border-b border-gray-200/50 dark:border-gray-800/50">
+    <div class="max-w-7xl mx-auto px-6 h-14 flex items-center justify-between">
 
-      <!-- Brand -->
-      <a href="{% url 'cars_list' %}" class="text-xl font-semibold tracking-tight">
+      <!-- Logo -->
+      <a href="{% url 'cars_list' %}" class="text-xl font-semibold tracking-tight hover:opacity-70 transition-opacity duration-300">
         OffCars
       </a>
 
-      <!-- Nav -->
-      <nav class="flex items-center gap-6 text-sm font-medium text-gray-600 dark:text-gray-300">
-        <a href="{% url 'cars_list' %}" class="hover:text-black dark:hover:text-white transition">Inventory</a>
-        <a href="#" class="hover:text-black dark:hover:text-white transition">About</a>
-        <a href="#" class="hover:text-black dark:hover:text-white transition">Contact</a>
+      <!-- Desktop Nav -->
+      <nav class="hidden md:flex items-center gap-8 text-sm font-medium text-gray-500 dark:text-gray-400">
+        <a href="{% url 'cars_list' %}" class="hover:text-gray-900 dark:hover:text-white transition-colors duration-300">Inventory</a>
+        <a href="#" class="hover:text-gray-900 dark:hover:text-white transition-colors duration-300">About</a>
+        <a href="#" class="hover:text-gray-900 dark:hover:text-white transition-colors duration-300">Contact</a>
 
-        <!-- Dark Mode Toggle -->
-        <button onclick="toggleDarkMode()" 
-          class="ml-4 px-4 py-2 rounded-full border text-xs 
-                 border-gray-300 dark:border-gray-700 
-                 hover:scale-105 transition">
-          Dark Mode
+        <!-- Theme Toggle -->
+        <button onclick="toggleDarkMode()" class="relative w-9 h-9 flex items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-300" aria-label="Toggle theme">
+          <!-- Sun -->
+          <svg class="w-[18px] h-[18px] dark:hidden text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z" />
+          </svg>
+          <!-- Moon -->
+          <svg class="w-[18px] h-[18px] hidden dark:block text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
+          </svg>
         </button>
       </nav>
 
+      <!-- Mobile Hamburger -->
+      <button onclick="toggleMobileMenu()" class="md:hidden w-9 h-9 flex items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-all" aria-label="Menu">
+        <svg id="hamburger-icon" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+        </svg>
+        <svg id="close-icon" class="w-5 h-5 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+
+    </div>
+
+    <!-- Mobile Menu -->
+    <div id="mobile-menu" class="mobile-menu md:hidden border-t border-gray-200/50 dark:border-gray-800/50 bg-white/95 dark:bg-[#0a0a0a]/95 backdrop-blur-xl">
+      <nav class="max-w-7xl mx-auto px-6 py-4 flex flex-col gap-4 text-sm font-medium text-gray-600 dark:text-gray-300">
+        <a href="{% url 'cars_list' %}" class="py-2 hover:text-black dark:hover:text-white transition-colors">Inventory</a>
+        <a href="#" class="py-2 hover:text-black dark:hover:text-white transition-colors">About</a>
+        <a href="#" class="py-2 hover:text-black dark:hover:text-white transition-colors">Contact</a>
+        <button onclick="toggleDarkMode()" class="py-2 text-left hover:text-black dark:hover:text-white transition-colors">Toggle Theme</button>
+      </nav>
     </div>
   </header>
 
-  <!-- MAIN CONTENT -->
-  <main class="flex-grow">
+  <!-- Spacer for fixed header -->
+  <div class="h-14"></div>
+
+  <!-- ── MAIN CONTENT ── -->
+  <main class="flex-grow animate-fade-in">
     {% block content %}{% endblock %}
   </main>
 
-  <!-- FOOTER -->
-  <footer class="mt-20 border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-black">
-    <div class="max-w-7xl mx-auto px-6 py-12 grid md:grid-cols-3 gap-10 text-sm text-gray-600 dark:text-gray-400">
+  <!-- ── FOOTER ── -->
+  <footer class="mt-auto border-t border-gray-200/60 dark:border-gray-800/60 bg-gray-50/50 dark:bg-[#111]/50">
+    <div class="max-w-7xl mx-auto px-6 py-16">
+      <div class="grid md:grid-cols-3 gap-12 text-sm">
 
-      <!-- Brand -->
-      <div>
-        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-3">
-          OffCars
-        </h3>
-        <p class="leading-relaxed">
-          Your new vehicle easier then never.<br>  
-          Performance, elegance, and trust.
-        </p>
+        <!-- Brand -->
+        <div>
+          <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 tracking-tight">OffCars</h3>
+          <p class="text-gray-500 dark:text-gray-400 leading-relaxed max-w-xs">
+            Your new vehicle, easier than ever.<br>
+            Performance, elegance, and trust.
+          </p>
+        </div>
+
+        <!-- Links -->
+        <div>
+          <h4 class="font-semibold text-gray-900 dark:text-white mb-4 text-xs uppercase tracking-widest">Navigate</h4>
+          <ul class="space-y-3">
+            <li><a href="{% url 'cars_list' %}" class="text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors duration-300">Inventory</a></li>
+            <li><a href="#" class="text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors duration-300">About</a></li>
+            <li><a href="#" class="text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors duration-300">Contact</a></li>
+          </ul>
+        </div>
+
+        <!-- Contact -->
+        <div>
+          <h4 class="font-semibold text-gray-900 dark:text-white mb-4 text-xs uppercase tracking-widest">Get in Touch</h4>
+          <div class="space-y-2 text-gray-500 dark:text-gray-400">
+            <p>sales@offcars.com</p>
+            <p>+1 (555) 123-4567</p>
+          </div>
+        </div>
+
       </div>
 
-      <!-- Links -->
-      <div>
-        <h4 class="font-semibold text-gray-900 dark:text-white mb-3">Navigation</h4>
-        <ul class="space-y-2">
-          <li><a href="{% url 'cars_list' %}" class="hover:text-black dark:hover:text-white transition">Inventory</a></li>
-          <li><a href="#" class="hover:text-black dark:hover:text-white transition">About</a></li>
-          <li><a href="#" class="hover:text-black dark:hover:text-white transition">Contact</a></li>
-        </ul>
+      <!-- Bottom bar -->
+      <div class="mt-12 pt-8 border-t border-gray-200/60 dark:border-gray-800/60 flex flex-col sm:flex-row justify-between items-center gap-4 text-xs text-gray-400 dark:text-gray-600">
+        <p>&copy; {% now "Y" %} OffCars. All rights reserved.</p>
+        <div class="flex gap-6">
+          <a href="#" class="hover:text-gray-600 dark:hover:text-gray-400 transition-colors">Privacy</a>
+          <a href="#" class="hover:text-gray-600 dark:hover:text-gray-400 transition-colors">Terms</a>
+        </div>
       </div>
-
-      <!-- Contact -->
-      <div>
-        <h4 class="font-semibold text-gray-900 dark:text-white mb-3">Contact</h4>
-        <p>Email: sales@luxurydealership.com</p>
-        <p>Phone: +1 (555) 123-4567</p>
-        <p class="mt-2">© {% now "Y" %} OffCars</p>
-      </div>
-
     </div>
   </footer>
-  
+
+  <!-- ── Scripts ── -->
+  <script>
+    // Theme toggle
+    function toggleDarkMode() {
+      document.documentElement.classList.toggle('dark');
+      localStorage.theme = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
+    }
+
+    // Mobile menu
+    function toggleMobileMenu() {
+      const menu = document.getElementById('mobile-menu');
+      const hamburger = document.getElementById('hamburger-icon');
+      const close = document.getElementById('close-icon');
+      menu.classList.toggle('open');
+      hamburger.classList.toggle('hidden');
+      close.classList.toggle('hidden');
+    }
+
+    // Scroll reveal animation
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('revealed');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+
+    document.addEventListener('DOMContentLoaded', () => {
+      document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+    });
+  </script>
+
 </body>
 </html>
