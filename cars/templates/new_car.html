@@ -1,10 +1,193 @@
 {% extends "base.html" %}
 
 {% block content %}
-  <h2>Add a New Car</h2>
-  <form method="post">
-    {% csrf_token %}
-    {{ new_car_form.as_p }}
-    <button type="submit">Submit</button>
-  </form>
+
+<div class="min-h-screen transition">
+
+  <div class="max-w-3xl mx-auto px-6 py-14">
+
+    <!-- Header -->
+    <div class="mb-10">
+      <h1 class="text-3xl font-semibold mb-2">
+        Add a New Car
+      </h1>
+      <p class="text-gray-600 dark:text-gray-400">
+        Fill in the details below to add a new car to your collection
+      </p>
+    </div>
+
+    <!-- Form -->
+    <form method="post" enctype="multipart/form-data" class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-8 space-y-6">
+      {% csrf_token %}
+
+      <!-- Global Errors -->
+      {% if new_car_form.non_field_errors %}
+        <div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 px-4 py-3 rounded-lg">
+          {{ new_car_form.non_field_errors }}
+        </div>
+      {% endif %}
+
+      <!-- Model Field -->
+      <div class="space-y-2">
+        <label for="{{ new_car_form.model.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+          {{ new_car_form.model.label }}
+        </label>
+        <input
+          type="text"
+          name="{{ new_car_form.model.name }}"
+          id="{{ new_car_form.model.id_for_label }}"
+          value="{{ new_car_form.model.value|default:'' }}"
+          class="w-full px-4 py-3 border rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+          placeholder="e.g., Civic, Corolla, Model 3"
+        >
+        {% if new_car_form.model.errors %}
+          <p class="text-red-600 dark:text-red-400 text-sm">{{ new_car_form.model.errors.0 }}</p>
+        {% endif %}
+      </div>
+
+      <!-- Brand Field -->
+      <div class="space-y-2">
+        <label for="{{ new_car_form.brand.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+          {{ new_car_form.brand.label }}
+        </label>
+        <select
+          name="{{ new_car_form.brand.name }}"
+          id="{{ new_car_form.brand.id_for_label }}"
+          class="w-full px-4 py-3 border rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+        >
+          <option value="">Select a brand...</option>
+          {% for value, label in new_car_form.brand.field.choices %}
+            {% if value %}
+              <option value="{{ value }}" {% if new_car_form.brand.value == value %}selected{% endif %}>{{ label }}</option>
+            {% endif %}
+          {% endfor %}
+        </select>
+        {% if new_car_form.brand.errors %}
+          <p class="text-red-600 dark:text-red-400 text-sm">{{ new_car_form.brand.errors.0 }}</p>
+        {% endif %}
+      </div>
+
+      <!-- Factory Year & Model Year (Grid) -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Factory Year -->
+        <div class="space-y-2">
+          <label for="{{ new_car_form.factory_year.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+            {{ new_car_form.factory_year.label }}
+          </label>
+          <input
+            type="number"
+            name="{{ new_car_form.factory_year.name }}"
+            id="{{ new_car_form.factory_year.id_for_label }}"
+            value="{{ new_car_form.factory_year.value|default:'' }}"
+            class="w-full px-4 py-3 border rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+            placeholder="2024"
+          >
+          {% if new_car_form.factory_year.errors %}
+            <p class="text-red-600 dark:text-red-400 text-sm">{{ new_car_form.factory_year.errors.0 }}</p>
+          {% endif %}
+        </div>
+
+        <!-- Model Year -->
+        <div class="space-y-2">
+          <label for="{{ new_car_form.model_year.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+            {{ new_car_form.model_year.label }}
+          </label>
+          <input
+            type="number"
+            name="{{ new_car_form.model_year.name }}"
+            id="{{ new_car_form.model_year.id_for_label }}"
+            value="{{ new_car_form.model_year.value|default:'' }}"
+            class="w-full px-4 py-3 border rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+            placeholder="2025"
+          >
+          {% if new_car_form.model_year.errors %}
+            <p class="text-red-600 dark:text-red-400 text-sm">{{ new_car_form.model_year.errors.0 }}</p>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Price & Plate (Grid) -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Price -->
+        <div class="space-y-2">
+          <label for="{{ new_car_form.value.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+            {{ new_car_form.value.label }}
+          </label>
+          <div class="relative">
+            <span class="absolute left-4 top-3.5 text-gray-500 dark:text-gray-400">R$</span>
+            <input
+              type="number"
+              step="0.01"
+              name="{{ new_car_form.value.name }}"
+              id="{{ new_car_form.value.id_for_label }}"
+              value="{{ new_car_form.value.value|default:'' }}"
+              class="w-full pl-12 pr-4 py-3 border rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+              placeholder="50000.00"
+            >
+          </div>
+          {% if new_car_form.value.errors %}
+            <p class="text-red-600 dark:text-red-400 text-sm">{{ new_car_form.value.errors.0 }}</p>
+          {% endif %}
+        </div>
+
+        <!-- Plate -->
+        <div class="space-y-2">
+          <label for="{{ new_car_form.plate.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+            {{ new_car_form.plate.label }}
+          </label>
+          <input
+            type="text"
+            name="{{ new_car_form.plate.name }}"
+            id="{{ new_car_form.plate.id_for_label }}"
+            value="{{ new_car_form.plate.value|default:'' }}"
+            class="w-full px-4 py-3 border rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition uppercase"
+            placeholder="ABC-1234"
+          >
+          {% if new_car_form.plate.errors %}
+            <p class="text-red-600 dark:text-red-400 text-sm">{{ new_car_form.plate.errors.0 }}</p>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Image Upload -->
+      <div class="space-y-2">
+        <label for="{{ new_car_form.image.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+          {{ new_car_form.image.label }}
+        </label>
+        <div class="relative">
+          <input
+            type="file"
+            name="{{ new_car_form.image.name }}"
+            id="{{ new_car_form.image.id_for_label }}"
+            accept="image/*"
+            class="w-full px-4 py-3 border rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 dark:file:bg-blue-900/30 dark:file:text-blue-400"
+          >
+        </div>
+        {% if new_car_form.image.errors %}
+          <p class="text-red-600 dark:text-red-400 text-sm">{{ new_car_form.image.errors.0 }}</p>
+        {% endif %}
+      </div>
+
+      <!-- Buttons -->
+      <div class="flex gap-4 pt-4">
+        <button
+          type="submit"
+          class="flex-1 px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-800 transition transform hover:scale-[1.02] active:scale-[0.98]"
+        >
+          Add Car
+        </button>
+        <a
+          href="{% url 'cars_list' %}"
+          class="px-6 py-3 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 font-semibold rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition"
+        >
+          Cancel
+        </a>
+      </div>
+
+    </form>
+
+  </div>
+
+</div>
+
 {% endblock %}
