@@ -29,3 +29,9 @@ class CarModelForm(forms.ModelForm):
         model = Car
         fields = '__all__' #'__all__' para incluir todos os campos do modelo Car
         # fields = ['model', 'brand', 'factory_year', 'model_year', 'plate', 'value', 'image'] # para incluir campos específicos
+        
+    def clean_value(self): # Validação personalizada para o campo 'value'
+        value = self.cleaned_data.get('value')
+        if value <= 0:
+            self.add_error('value', 'O valor deve ser maior que zero.')
+        return value
